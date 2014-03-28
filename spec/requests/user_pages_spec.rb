@@ -46,6 +46,11 @@ describe "User pages" do
           end.to change(User, :count).by(-1)
         end
         it { should_not have_link('delete', href: user_path(admin)) }
+
+        # describe "but not itself" do
+        #   before { delete user_path(admin) }
+        #   specify { expect(response).to redirect_to(admin) }
+        # end
       end
     end
   end
@@ -69,6 +74,15 @@ describe "User pages" do
   	before { visit signup_path }
 
   	let(:submit) { "Create my account" }
+
+    describe "as signed-in user" do
+      let(:user) { FactoryGirl.create(:user) }
+      before do 
+        sign_in user
+        visit signup_path
+      end
+      it { should_not have_title('Sign up') }
+    end
 
   	describe "with invalid information" do
   		it "should not create a user" do
@@ -137,5 +151,15 @@ describe "User pages" do
       specify { expect(user.reload.email).to eq new_email }
     end
 
+    describe "forbidden attributes" do
+      let(:params) do
+        { user: { admin: true, password: user.password, password_confirmation: user.password } }
+      end
+      before do
+        sign_in user, no_capybara: true
+        patch user_path(user), params
+      end
+      specify { expect(user.reload).not_to be_admin }
+    end
   end
 end

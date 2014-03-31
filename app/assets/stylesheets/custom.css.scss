@@ -221,3 +221,11 @@ aside {
     margin-bottom: 5px;
   }
 }
+.counter {
+  color: $grayLight;
+  float: right;
+
+  span {
+    display: inline;
+  }
+}

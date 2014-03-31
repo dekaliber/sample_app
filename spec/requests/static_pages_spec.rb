@@ -33,6 +33,10 @@ describe "Static pages" do
           expect(page).to have_selector("li##{item.id}", text: item.content)
         end
       end
+
+      it "should render the correct number of microposts" do
+        expect(page).to have_content(user.microposts.count.to_s + ' microposts')
+      end
     end
   end
 

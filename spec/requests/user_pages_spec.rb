@@ -46,11 +46,6 @@ describe "User pages" do
           end.to change(User, :count).by(-1)
         end
         it { should_not have_link('delete', href: user_path(admin)) }
-
-        # describe "but not itself" do
-        #   before { delete user_path(admin) }
-        #   specify { expect(response).to redirect_to(admin) }
-        # end
       end
     end
   end
@@ -64,9 +59,12 @@ describe "User pages" do
 
   describe "profile page" do
   	let(:user) { FactoryGirl.create(:user) }
+    let(:wrong_user) { FactoryGirl.create(:user, email: "wrong@example.com") }
     let!(:m1) { FactoryGirl.create(:micropost, user: user, content: "Foo") }
     let!(:m2) { FactoryGirl.create(:micropost, user: user, content: "Bar") }
-  	before { visit user_path(user) }
+    let!(:m3) { FactoryGirl.create(:micropost, user: wrong_user, content: "Foo") }
+    let!(:m4) { FactoryGirl.create(:micropost, user: wrong_user, content: "Bar") }
+    before { visit user_path(user) }
 
   	it { should have_content(user.name) }
   	it { should have_title(user.name) }
@@ -75,6 +73,42 @@ describe "User pages" do
       it { should have_content(m1.content) }
       it { should have_content(m2.content) }
       it { should have_content(user.microposts.count) }
+      
+      describe "should not have delete links" do
+        it { should_not have_link('delete') }
+
+        describe "until signed in" do
+          before do
+            sign_in user
+            visit user_path(user)
+          end
+          it { should have_link('delete') }
+
+          describe "but not for other users" do
+            before { visit user_path(wrong_user) }
+            it { should_not have_link('delete') }
+          end
+        end
+      end
+
+      describe "should have pagination" do
+        before do
+          50.times do |n|
+            FactoryGirl.create(:micropost, user: user)
+          end
+          visit user_path(user)
+        end
+        after(:all) { Micropost.delete_all }
+
+        it { should have_selector('div.pagination') }
+
+        # it "should list each Micropost" do
+        #   Micropost.paginate(page: 1).each do |micropost|
+        #     expect(page).to have_selector('li', text: micropost.content)
+        #   end
+        # end
+      end
+
     end
   end
 

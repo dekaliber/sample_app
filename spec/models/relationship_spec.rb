@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe Relationship do
+
   let(:follower) { FactoryGirl.create(:user) }
   let(:followed) { FactoryGirl.create(:user) }
   let(:relationship) { follower.relationships.build(followed_id: followed.id) }
@@ -25,4 +26,22 @@ describe Relationship do
   	before { relationship.follower_id = nil }
   	it { should_not be_valid }
   end
+
+  # Exercise 11.5
+  # describe "micropost assocations" do
+  #   before do
+  #     @user = User.new(name: "Example User", email: "user@example.com", password: "foobar", password_confirmation: "foobar")
+  #     @user.save
+  #     @user.relationships.build(id: 100, followed_id: 1)
+  #   end 
+    
+  #   it "should destroy associated microposts" do
+  #     relationships = @user.relationships.to_a
+  #     @user.destroy
+  #     expect(relationships).not_to be_empty
+  #     relationships.each do |relationship|
+  #       expect(Relationship.where(id: relationship.id)).to be_empty
+  #     end
+  #   end
+  # end
 end
